@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>NOVA Internals</title>
+<title>NOVA White Paper</title>
+<meta name="description" content="NOVA white paper: the problem, the system, the $NOVA token, the community roadmap and the risks — in one document.">
 <style>
 @font-face{
   font-family:'JBM';
@@ -169,6 +170,35 @@ figcaption{margin-top:14px;font-size:.86rem;color:var(--muted);text-align:center
 .chip.silver::before{background:var(--info)}
 .chip.gold::before{background:var(--token)}
 
+/* cta / buttons */
+.cta-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:22px}
+.btn{font-family:JBM;font-size:.82rem;letter-spacing:.03em;font-weight:600;text-decoration:none;padding:13px 18px;border-radius:6px;display:inline-flex;align-items:center;gap:8px;border:1px solid transparent}
+.btn-primary{background:var(--signal);color:#07130d}
+.btn-primary:hover{filter:brightness(1.08)}
+.btn-ghost{background:var(--surface);border-color:var(--border);color:var(--text)}
+.btn-ghost:hover{border-color:var(--signal)}
+
+/* cards / grid */
+.cards3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:28px}
+@media(max-width:820px){.cards3{grid-template-columns:1fr}}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:20px;box-shadow:var(--shadow)}
+.card h3{margin:0 0 8px;font-family:JBM;font-size:.95rem;letter-spacing:.02em}
+.card p{margin:0;color:var(--muted);font-size:.92rem}
+
+/* pill */
+.pill{display:inline-flex;align-items:center;gap:8px;font-family:JBM;font-size:.78rem;letter-spacing:.04em;padding:8px 14px;border-radius:999px;background:var(--signal-soft);color:var(--signal);border:1px solid color-mix(in srgb, var(--signal) 35%, var(--border))}
+
+/* token callout */
+.token-box{background:var(--token-soft);border:1px solid color-mix(in srgb, var(--token) 30%, var(--border));border-radius:10px;padding:22px 24px;margin-top:28px}
+.token-box .row{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+.token-box .label{font-family:JBM;font-size:.72rem;letter-spacing:.12em;color:var(--token);margin-bottom:8px}
+.mint{font-family:JBM;font-size:.86rem;word-break:break-all;color:var(--text)}
+.btn-token{background:var(--token);color:#241902;font-family:JBM;font-weight:700;font-size:.8rem;padding:11px 16px;border-radius:6px;text-decoration:none;white-space:nowrap}
+
+/* notice */
+.notice{background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:18px 20px;margin-top:26px;font-size:.9rem;color:var(--muted)}
+.notice b{color:var(--text)}
+
 footer{padding:44px 0 60px;border-top:1px solid var(--border)}
 .foot-row{display:flex;justify-content:space-between;flex-wrap:wrap;gap:16px;align-items:center}
 .foot-row .brand{font-size:.85rem}
@@ -181,14 +211,14 @@ footer{padding:44px 0 60px;border-top:1px solid var(--border)}
 
 <div class="topbar">
   <div class="wrap">
-    <a class="brand" href="index.html"><span class="dot"></span> NOVA <small>/ internals</small></a>
+    <a class="brand" href="index.html"><span class="dot"></span> NOVA <small>/ white paper</small></a>
     <nav class="topnav">
+      <a href="#abstract">Abstract</a>
+      <a href="#problem">Problem</a>
       <a href="#system">System</a>
-      <a href="#dataflow">Data flow</a>
-      <a href="#layers">Storage</a>
-      <a href="#deploy">Deployment</a>
-      <a href="#notes">Field notes</a>
-      <a href="#stack">Stack</a>
+      <a href="#token">Token</a>
+      <a href="#roadmap">Roadmap</a>
+      <a href="#risks">Risks</a>
     </nav>
   </div>
 </div>
@@ -196,364 +226,121 @@ footer{padding:44px 0 60px;border-top:1px solid var(--border)}
 <main class="wrap">
 
 <section class="hero">
-  <p class="eyebrow">TECHNICAL DEEP-DIVE // ARCHITECTURE</p>
-  <h1 class="title">How NOVA actually works</h1>
-  <p class="sub">A medallion pipeline (Bronze → Silver → Gold) on ClickHouse, orchestrated in batch by Dagster and dbt, running alongside a second, always-on daemon that evaluates and delivers alerts directly — the two paths share one ingestion process but nothing else. Below: every component, the exact hops data takes, and the production notes worth knowing before touching any of it.</p>
+  <p class="eyebrow">WHITE PAPER // v1.0 · AUGUST 2026</p>
+  <h1 class="title">NOVA: real-time intelligence for newly launched tokens</h1>
+  <p class="sub">This document lays out the problem NOVA is built to answer, how the signal engine works, what the $NOVA token is and is not, where the project is headed, and the risks involved in using either the product or the token. For the full technical internals — every component, data flow and production note — see <a href="architecture.html">Architecture ↗</a>.</p>
+</section>
+
+<section class="block" id="abstract">
+  <div class="block-head">
+    <div class="idx"><b>01</b> // ABSTRACT</div>
+    <div>
+      <h2>Abstract</h2>
+      <p class="lede">One engine, three surfaces: a bot, a channel, and a token, all pointed at the same feed.</p>
+    </div>
+  </div>
+  <div class="prose">
+    <p>NOVA is an experimental research and alerting system that watches every new pump.fun launch as it happens, runs a fast rug-risk check before the crowd arrives, and pushes what it finds to Telegram — through a bot for on-demand lookups and a channel for the open broadcast. $NOVA is the project's own pump.fun listing, launched under the exact bonding-curve mechanism the engine was built to screen.</p>
+    <p>NOVA is not a promise of returns, and $NOVA is not a claim on future protocol revenue. Both are described here as they exist today: an active, still-tuning signal engine, and a fair-launch token that shares the project's name and nothing structurally more than that — for now.</p>
+  </div>
+</section>
+
+<section class="block" id="problem">
+  <div class="block-head">
+    <div class="idx"><b>02</b> // THE PROBLEM</div>
+    <div>
+      <h2>The first minute is the dangerous one</h2>
+      <p class="lede">Pump.fun makes launching a token nearly instantaneous. That speed is also what makes early minutes so easy to exploit.</p>
+    </div>
+  </div>
+  <div class="prose">
+    <p>Thousands of tokens launch on pump.fun's bonding curve every day. A small share are deployed in good faith; a meaningful share are set up so the deployer — or a coordinated group of early wallets — can extract value from anyone who buys in after them, often within minutes of launch. By the time a chart looks interesting enough to attract manual attention, the window to act on that information has usually already closed.</p>
+    <p>Retail traders watching this feed by eye are structurally behind: they cannot decode bonding-curve trades, cross-reference deployer wallets, or count real buyers faster than the token itself moves.</p>
+  </div>
 </section>
 
 <section class="block" id="system">
   <div class="block-head">
-    <div class="idx"><b>01</b> // SYSTEM</div>
+    <div class="idx"><b>03</b> // THE SYSTEM</div>
     <div>
-      <h2>Components</h2>
-      <p class="lede">A uv workspace monorepo: one Python environment, three installable packages, plus a dbt project and a Terraform config that sit outside it.</p>
+      <h2>What the engine does</h2>
+      <p class="lede">A single always-on process turns a raw launch feed into a risk read before most traders have opened the chart.</p>
     </div>
   </div>
-  <div class="tbl-wrap">
-    <table class="data">
-      <tr><th>Component</th><th>Built with</th><th>Role</th></tr>
-      <tr><td>pumpfun_common</td><td>pydantic v2, clickhouse-connect</td><td>Shared models, Bronze table/column name constants (single source of truth the daemon and dbt sources.yml both read from), ClickHouse client factory, DDL bootstrap runner.</td></tr>
-      <tr><td>ingestion</td><td>asyncio, httpx, websockets, tenacity, aiolimiter</td><td>The always-on daemon. Holds the PumpPortal and Helius connections, decodes trades, writes Bronze, emits a heartbeat, and runs the real-time <code>AlertEvaluator</code> in the same process.</td></tr>
-      <tr><td>orchestration</td><td>Dagster, dagster-dbt</td><td>Wraps the dbt project as <code>@dbt_assets</code>, represents Bronze as observable source assets, runs an <code>ingestion_daemon_is_alive</code> asset check off the heartbeat table, schedules the dbt build every 10 minutes.</td></tr>
-      <tr><td>dbt project</td><td>dbt-clickhouse</td><td>Silver staging models and Gold marts as plain SQL, plus schema tests that surface as Dagster asset checks automatically.</td></tr>
-      <tr><td>bot</td><td>aiogram</td><td>A separate package for the interactive <code>/check</code> and <code>/top_insiders</code> commands, reading the batch Gold layer — fully independent of the alert-delivery path.</td></tr>
-      <tr><td>ClickHouse</td><td>ClickHouse server + dbt-clickhouse adapter</td><td>Bronze (files + a lookup index + a heartbeat table), Silver and Gold as real materialized tables in their own databases.</td></tr>
-      <tr><td>Terraform</td><td>azurerm ~&gt;4.0</td><td>Provisions Azure Container Apps, ACR, Key Vault and Azure Files for the cloud deployment; a separate bootstrap config manages remote state.</td></tr>
-    </table>
-  </div>
-</section>
-
-<section class="block" id="dataflow">
-  <div class="block-head">
-    <div class="idx"><b>02</b> // DATA FLOW</div>
-    <div>
-      <h2>From a websocket to a Telegram message</h2>
-      <p class="lede">One daemon process, two live upstream connections, three things written per event, and a fork into a real-time path and a batch path.</p>
-    </div>
-  </div>
-
   <div class="prose">
-    <p><strong>Launches</strong> arrive over PumpPortal's free <code>subscribeNewToken</code> websocket — no API key, no funded wallet, unlimited. <strong>Trades</strong> are more involved: PumpPortal's trade subscriptions turned out to require a funded wallet and are metered per event, so NOVA instead opens a Helius RPC websocket and calls <code>logsSubscribe</code> filtered to the pump.fun bonding-curve program (<code class="mono">6EF8rr…F6P</code>). That only returns a bare signature, so a follow-up <code>getTransaction</code> resolves the actual trade — often not on the first try, since Helius nodes can return <code>result: null</code> for several seconds after the notification fires, so the fetch retries with backoff. The decode itself doesn't touch Anchor instructions at all: diffing <code>pre/postTokenBalances</code> and <code>pre/postBalances</code> on the resolved transaction is enough to recover trader, side, and amounts.</p>
-    <p>Every decoded event — launch or trade — is written three ways: appended as one JSON line to a rotating <code>.jsonl</code> file (Bronze's actual storage), indexed as a lightweight row in a real MergeTree table for fast lookups, and reflected in a heartbeat row roughly every 10 seconds so a quiet market can be told apart from a dead daemon. From that same event, two independent things happen next.</p>
+    <p>An ingestion daemon keeps a live connection open to pump.fun's launch feed and to Solana through Helius. From the moment a token is created, NOVA decodes trades against its bonding curve, tracks the deployer's own buys, counts early buyers, and flags wallets that look like repeat insiders — collapsing all of it into a single risk score.</p>
+    <p>That score reaches people through two channels: <strong>@NovaRadarSignalsBot</strong>, which answers on-demand questions about a specific mint and pushes personal alerts, and <strong>@NOVAexperiment</strong>, the open channel that broadcasts every BUY, SELL and EMERGENCY signal as it fires, no account required. Both read from the same engine; neither is fed by or feeds $NOVA.</p>
   </div>
-
-  <figure class="diagram diagram-scroll">
-    <svg viewBox="0 0 1040 620" role="img" aria-label="Detailed data flow diagram: PumpPortal and Helius feed the ingestion daemon's subscription manager and trade decoder; the daemon writes rotating jsonl files, an index table, and a heartbeat table. A real-time path runs the alert evaluator to the Telegram Bot API and out to the bot and channel. A batch path exposes the files as a raw_events view, which dbt turns into Silver and Gold tables on a Dagster schedule, queried on demand by the bot's check and top_insiders commands. A dashed line shows Dagster's asset check observing the heartbeat table rather than consuming data from it.">
-      <defs>
-        <marker id="d1" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor" opacity=".6"></path></marker>
-        <marker id="d2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--signal)"></path></marker>
-        <marker id="d3" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--info)"></path></marker>
-        <marker id="d4" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--token)"></path></marker>
-      </defs>
-
-      <!-- sources -->
-      <rect x="20" y="20" width="190" height="60" rx="6" fill="var(--surface)" stroke="var(--border)"></rect>
-      <text x="34" y="46" class="mono" font-size="11" font-weight="700" fill="currentColor">PUMPPORTAL</text>
-      <text x="34" y="62" class="mono" font-size="8" fill="currentColor" opacity=".55">subscribeNewToken · ws · free</text>
-
-      <rect x="20" y="96" width="190" height="60" rx="6" fill="var(--surface)" stroke="var(--border)"></rect>
-      <text x="34" y="122" class="mono" font-size="11" font-weight="700" fill="currentColor">HELIUS RPC</text>
-      <text x="34" y="138" class="mono" font-size="8" fill="currentColor" opacity=".55">logsSubscribe → getTransaction</text>
-
-      <line x1="210" y1="50" x2="248" y2="70" stroke="currentColor" stroke-opacity=".5" marker-end="url(#d1)"></line>
-      <line x1="210" y1="126" x2="248" y2="90" stroke="currentColor" stroke-opacity=".5" marker-end="url(#d1)"></line>
-
-      <!-- daemon -->
-      <rect x="250" y="30" width="220" height="120" rx="6" fill="var(--surface-2)" stroke="currentColor" stroke-opacity=".35"></rect>
-      <text x="266" y="56" class="mono" font-size="12" font-weight="700" fill="currentColor">INGESTION DAEMON</text>
-      <text x="266" y="74" class="mono" font-size="8" fill="currentColor" opacity=".6">subscription_manager</text>
-      <text x="266" y="90" class="mono" font-size="8" fill="currentColor" opacity=".6">trade_decoder (balance-diff)</text>
-      <text x="266" y="106" class="mono" font-size="8" fill="currentColor" opacity=".6">one asyncio process</text>
-      <text x="266" y="134" class="mono" font-size="8" fill="currentColor" opacity=".55">not a Dagster asset —</text>
-      <text x="266" y="146" class="mono" font-size="8" fill="currentColor" opacity=".55">a scheduler can't hold a ws open</text>
-
-      <!-- three writes -->
-      <line x1="470" y1="70" x2="520" y2="46" stroke="currentColor" stroke-opacity=".5" marker-end="url(#d1)"></line>
-      <line x1="470" y1="90" x2="520" y2="90" stroke="currentColor" stroke-opacity=".5" marker-end="url(#d1)"></line>
-      <line x1="470" y1="110" x2="520" y2="134" stroke="currentColor" stroke-opacity=".5" marker-end="url(#d1)"></line>
-
-      <rect x="522" y="20" width="190" height="52" rx="6" fill="var(--surface)" stroke="var(--border)"></rect>
-      <text x="536" y="40" class="mono" font-size="10" font-weight="700" fill="currentColor">.jsonl FILES</text>
-      <text x="536" y="55" class="mono" font-size="8" fill="currentColor" opacity=".55">rotate 20s / 200 rows</text>
-
-      <rect x="522" y="64" width="190" height="52" rx="6" fill="var(--surface)" stroke="var(--border)"></rect>
-      <text x="536" y="84" class="mono" font-size="10" font-weight="700" fill="currentColor">raw_events_index</text>
-      <text x="536" y="99" class="mono" font-size="8" fill="currentColor" opacity=".55">MergeTree, bloom(signature)</text>
-
-      <rect x="522" y="108" width="190" height="52" rx="6" fill="var(--surface)" stroke="var(--border)"></rect>
-      <text x="536" y="128" class="mono" font-size="10" font-weight="700" fill="currentColor">ingestion_heartbeat</text>
-      <text x="536" y="143" class="mono" font-size="8" fill="currentColor" opacity=".55">typed table, ~10s cadence</text>
-
-      <!-- fork from daemon down/up to two lanes -->
-      <polyline points="360,150 360,210 522,210" fill="none" stroke="var(--signal)" stroke-width="1.6" marker-end="url(#d2)"></polyline>
-      <polyline points="360,150 360,400 522,400" fill="none" stroke="var(--info)" stroke-width="1.6" marker-end="url(#d3)"></polyline>
-
-      <!-- real time lane -->
-      <text x="522" y="192" class="mono" font-size="9.5" letter-spacing="1" fill="var(--signal)">REAL-TIME · SAME PROCESS, TAPPED VIA QUEUES</text>
-      <rect x="522" y="200" width="190" height="56" rx="6" fill="var(--surface)" stroke="var(--signal)" stroke-opacity=".5"></rect>
-      <text x="536" y="222" class="mono" font-size="10" font-weight="700" fill="currentColor">ALERT EVALUATOR</text>
-      <text x="536" y="238" class="mono" font-size="8" fill="currentColor" opacity=".6">BUY: delayed risk check, 45s</text>
-      <text x="536" y="250" class="mono" font-size="8" fill="currentColor" opacity=".6">SELL/EMERGENCY: instant on dev dump</text>
-
-      <line x1="712" y1="228" x2="750" y2="228" stroke="var(--signal)" stroke-width="1.6" marker-end="url(#d2)"></line>
-      <rect x="752" y="202" width="180" height="52" rx="6" fill="var(--surface)" stroke="var(--signal)" stroke-opacity=".5"></rect>
-      <text x="766" y="222" class="mono" font-size="10" font-weight="700" fill="currentColor">TELEGRAM BOT API</text>
-      <text x="766" y="237" class="mono" font-size="8" fill="currentColor" opacity=".6">message delivery</text>
-
-      <line x1="932" y1="218" x2="962" y2="200" stroke="var(--signal)" stroke-width="1.6" marker-end="url(#d2)"></line>
-      <line x1="932" y1="238" x2="962" y2="250" stroke="var(--signal)" stroke-width="1.6" marker-end="url(#d2)"></line>
-      <rect x="964" y="178" width="60" height="40" rx="6" fill="var(--signal-soft)" stroke="var(--signal)" stroke-opacity=".5"></rect>
-      <text x="972" y="202" class="mono" font-size="9" font-weight="700" fill="currentColor">BOT</text>
-      <rect x="964" y="230" width="60" height="40" rx="6" fill="var(--signal-soft)" stroke="var(--signal)" stroke-opacity=".5"></rect>
-      <text x="972" y="254" class="mono" font-size="8" font-weight="700" fill="currentColor">CHAN.</text>
-
-      <!-- batch lane -->
-      <text x="522" y="382" class="mono" font-size="9.5" letter-spacing="1" fill="var(--info)">BATCH · SCHEMA-ON-READ · DAGSTER + dbt</text>
-      <rect x="522" y="390" width="150" height="52" rx="6" fill="var(--surface)" stroke="var(--info)" stroke-opacity=".5"></rect>
-      <text x="536" y="410" class="mono" font-size="10" font-weight="700" fill="currentColor">raw_events VIEW</text>
-      <text x="536" y="425" class="mono" font-size="7.6" fill="currentColor" opacity=".6">file() over the .jsonl glob</text>
-
-      <line x1="672" y1="416" x2="700" y2="416" stroke="var(--info)" stroke-width="1.6" marker-end="url(#d3)"></line>
-      <rect x="702" y="390" width="150" height="52" rx="6" fill="var(--surface)" stroke="var(--info)" stroke-opacity=".5"></rect>
-      <text x="716" y="410" class="mono" font-size="10" font-weight="700" fill="currentColor">SILVER (dbt)</text>
-      <text x="716" y="425" class="mono" font-size="7.6" fill="currentColor" opacity=".6">stg_launches / stg_trades</text>
-
-      <line x1="852" y1="416" x2="880" y2="416" stroke="var(--info)" stroke-width="1.6" marker-end="url(#d3)"></line>
-      <rect x="882" y="390" width="142" height="52" rx="6" fill="var(--surface)" stroke="var(--info)" stroke-opacity=".5"></rect>
-      <text x="896" y="410" class="mono" font-size="10" font-weight="700" fill="currentColor">GOLD (dbt)</text>
-      <text x="896" y="425" class="mono" font-size="7.6" fill="currentColor" opacity=".6">risk score / insiders</text>
-
-      <line x1="953" y1="442" x2="953" y2="470" stroke="var(--info)" stroke-width="1.6" marker-end="url(#d3)"></line>
-      <rect x="702" y="472" width="322" height="48" rx="6" fill="var(--info-soft)" stroke="var(--info)" stroke-opacity=".5"></rect>
-      <text x="716" y="492" class="mono" font-size="10" font-weight="700" fill="currentColor">/check · /top_insiders</text>
-      <text x="716" y="507" class="mono" font-size="7.6" fill="currentColor" opacity=".6">bot package, reads Gold on demand</text>
-
-      <!-- dagster schedule + asset check -->
-      <rect x="702" y="540" width="322" height="60" rx="6" fill="var(--surface)" stroke="var(--token)" stroke-opacity=".5" stroke-dasharray="3 3"></rect>
-      <text x="716" y="562" class="mono" font-size="10" font-weight="700" fill="currentColor">DAGSTER</text>
-      <text x="716" y="577" class="mono" font-size="7.6" fill="currentColor" opacity=".6">10-min schedule drives dbt build ↑</text>
-      <text x="716" y="590" class="mono" font-size="7.6" fill="currentColor" opacity=".6">asset_check watches heartbeat ⇢</text>
-
-      <line x1="875" y1="540" x2="825" y2="443" stroke="var(--token)" stroke-width="1.3" stroke-dasharray="4 4" opacity=".8" marker-end="url(#d4)"></line>
-      <path d="M702,570 C400,570 400,300 617,160" fill="none" stroke="var(--token)" stroke-width="1.3" stroke-dasharray="4 4" opacity=".8" marker-end="url(#d4)"></path>
-      <text x="330" y="330" class="mono" font-size="8" fill="var(--token)" transform="rotate(-90 330 330)">is_alive check observes ⇢</text>
-    </svg>
-    <figcaption>Solid green = the real-time alert path (one process, no queue service). Solid cyan = the batch analytics path (ClickHouse + dbt, scheduled). Dashed amber = Dagster only <em>observing</em> the heartbeat table and the dbt build — it never touches the alert path.</figcaption>
-  </figure>
+  <div class="cta-row">
+    <a class="btn btn-ghost" href="architecture.html">Full technical architecture ↗</a>
+  </div>
+  <div class="notice"><b>What NOVA is — and isn't.</b> NOVA is an experimental research and alerting service. Signals are informational, generated by a rules-based risk score that is still being tuned — they are not guarantees of future performance and should not be read as financial advice.</div>
 </section>
 
-<section class="block" id="layers">
+<section class="block" id="token">
   <div class="block-head">
-    <div class="idx"><b>03</b> // STORAGE LAYERS</div>
+    <div class="idx"><b>04</b> // THE $NOVA TOKEN</div>
     <div>
-      <h2>Bronze, Silver, Gold</h2>
-      <p class="lede">A medallion layout, but Bronze is deliberately not a ClickHouse table — it's a query layer over files ClickHouse never writes to.</p>
+      <h2>Description and concept</h2>
+      <p class="lede">$NOVA is the project's own listing — a fair-launch token run through the exact mechanism it was built to study.</p>
     </div>
   </div>
-  <div class="tbl-wrap">
-    <table class="data">
-      <tr><th>Layer</th><th>What it is</th><th>Format</th><th>Written / refreshed</th></tr>
-      <tr><td><span class="chip bronze">Bronze</span></td><td>Raw events exactly as received — one line per launch or trade, plus a heartbeat</td><td>Rotating <code>.jsonl</code> files (<code>raw_events</code> view via ClickHouse's <code>file()</code> engine); a MergeTree index table; a typed heartbeat table</td><td>Continuously, by the daemon</td></tr>
-      <tr><td><span class="chip silver">Silver</span></td><td>Cleaned, typed staging models — <code>stg_token_launches</code>, <code>stg_trades</code></td><td>ClickHouse tables, dbt-managed</td><td>Every dbt build (~10 min, Dagster-scheduled)</td></tr>
-      <tr><td><span class="chip gold">Gold</span></td><td>Rule-based marts — <code>dim_token_risk_score</code>, <code>dim_insider_wallets</code></td><td>ClickHouse tables, dbt-managed</td><td>Every dbt build (~10 min, Dagster-scheduled)</td></tr>
-    </table>
+  <div class="prose">
+    <p><strong>Ticker</strong> $NOVA · <strong>Network</strong> Solana · <strong>Launch venue</strong> pump.fun, public bonding curve. There was no presale, no private allocation and no team pre-mint set aside before launch — $NOVA entered circulation the same way every token NOVA screens does, on the same public curve, in the same window as anyone else.</p>
+    <p>Using the bot or the channel has never required holding $NOVA; there is no gating, no fee-share, and no built-in alert priority tied to it today. Its purpose is different from a typical utility token: it is NOVA giving itself real skin in the exact game it screens, and it has become a rallying point for the community that already follows the signals — a way to hold a stake in the project itself, not just consume what it publishes.</p>
   </div>
-  <div class="prose" style="margin-top:22px">
-    <p>Trade payloads keep both a <code>decoded</code> block (trader, side, amounts — the balance-diff output) and the untouched original Helius response under <code>raw</code>, so nothing is lost to the reshaping. The index table exists only because file/URL-engine sources have no data-skipping stats of their own — every query against <code>raw_events</code> otherwise re-scans every matching file. Silver and Gold don't read the index; they query <code>raw_events</code> directly and extract fields with <code>JSONExtract*</code>.</p>
+  <div class="token-box">
+    <div class="row">
+      <div>
+        <div class="label">CONTRACT / MINT</div>
+        <div class="mint">EFfuye9Qa2eCtFkmMq9W2vjMFeQsVyX1foMKZ1PSpump</div>
+      </div>
+      <a class="btn-token" href="https://pump.fun/coin/EFfuye9Qa2eCtFkmMq9W2vjMFeQsVyX1foMKZ1PSpump">View on pump.fun ↗</a>
+    </div>
   </div>
+  <div class="notice"><b>No promised utility.</b> $NOVA carries no guaranteed protocol utility or revenue share as of today. Newly launched tokens — including $NOVA itself — can be extremely volatile and may become illiquid or lose most or all of their value. Nothing here is investment advice; do your own research and only risk funds you can afford to lose.</div>
 </section>
 
-<section class="block" id="deploy">
+<section class="block" id="roadmap">
   <div class="block-head">
-    <div class="idx"><b>04</b> // DEPLOYMENT</div>
+    <div class="idx"><b>05</b> // COMMUNITY ROADMAP</div>
     <div>
-      <h2>Local Docker Compose → Azure Container Apps</h2>
-      <p class="lede">Same three images, two very different topologies for how they reach ClickHouse's storage.</p>
+      <h2>Where NOVA goes from here</h2>
+      <p class="lede">Sequenced around the community that actually uses the bot and channel today, not a fixed date-driven plan.</p>
     </div>
   </div>
-
-  <div class="compare-head">
-    <div class="l">LOCAL DEV</div>
-    <div class="r">CLOUD — AZURE CONTAINER APPS</div>
+  <div class="cards3">
+    <div class="card">
+      <h3><span class="pill" style="background:var(--signal-soft);color:var(--signal);border-color:color-mix(in srgb, var(--signal) 35%, var(--border))">Phase 1 · Live</span></h3>
+      <p>The real-time risk engine, @NovaRadarSignalsBot, @NOVAexperiment and $NOVA's own fair launch — the foundation already running today.</p>
+    </div>
+    <div class="card">
+      <h3><span class="pill" style="background:var(--info-soft);color:var(--info);border-color:color-mix(in srgb, var(--info) 35%, var(--border))">Phase 2 · In progress</span></h3>
+      <p>Growing the free channel and bot subscriber base, and tuning the risk-scoring rules against more live data.</p>
+    </div>
+    <div class="card">
+      <h3><span class="pill" style="background:var(--token-soft);color:var(--token);border-color:color-mix(in srgb, var(--token) 35%, var(--border))">Phase 3 · Planned</span></h3>
+      <p>A public dashboard for browsing signal history and flagged insider wallets without needing Telegram, plus coverage beyond pump.fun's own curve.</p>
+    </div>
+    <div class="card">
+      <h3><span class="pill" style="background:var(--surface-2);color:var(--muted);border-color:var(--border)">Phase 4 · Exploring</span></h3>
+      <p>Ways for the people holding $NOVA and using the signals to weigh in on how the risk score itself is tuned.</p>
+    </div>
   </div>
-
-  <figure class="diagram diagram-scroll">
-    <svg viewBox="0 0 1040 400" role="img" aria-label="Comparison diagram: locally, docker compose runs a single ClickHouse container with a host bind mount for the bronze files directory, alongside the ingestion daemon and Dagster running as plain host processes. In the cloud, four separate Azure Container Apps or jobs — ClickHouse, ingest, dagster, and a manual bootstrap job — pull images from Azure Container Registry via managed identity and share an Azure Files share mounted at the same bronze files path, while ClickHouse's own data directory is left on ephemeral storage in both environments.">
-      <defs>
-        <marker id="c1" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor" opacity=".6"></path></marker>
-      </defs>
-
-      <!-- divider -->
-      <line x1="500" y1="10" x2="500" y2="390" stroke="var(--border)" stroke-width="1"></line>
-
-      <!-- LOCAL -->
-      <rect x="30" y="30" width="180" height="50" rx="6" fill="var(--surface)" stroke="var(--signal)" stroke-opacity=".5"></rect>
-      <text x="44" y="52" class="mono" font-size="10" font-weight="700" fill="currentColor">make ingest</text>
-      <text x="44" y="66" class="mono" font-size="7.6" fill="currentColor" opacity=".55">host process (daemon)</text>
-
-      <rect x="30" y="98" width="180" height="50" rx="6" fill="var(--surface)" stroke="var(--signal)" stroke-opacity=".5"></rect>
-      <text x="44" y="120" class="mono" font-size="10" font-weight="700" fill="currentColor">make dagster-dev</text>
-      <text x="44" y="134" class="mono" font-size="7.6" fill="currentColor" opacity=".55">host process (webserver+daemon)</text>
-
-      <rect x="270" y="64" width="190" height="90" rx="6" fill="var(--surface-2)" stroke="currentColor" stroke-opacity=".35"></rect>
-      <text x="284" y="88" class="mono" font-size="10" font-weight="700" fill="currentColor">ClickHouse container</text>
-      <text x="284" y="104" class="mono" font-size="7.6" fill="currentColor" opacity=".55">docker compose, single service</text>
-      <text x="284" y="118" class="mono" font-size="7.6" fill="currentColor" opacity=".55">runs as host uid 1000:1000</text>
-      <text x="284" y="132" class="mono" font-size="7.6" fill="currentColor" opacity=".55">/var/lib/clickhouse: named volume</text>
-
-      <line x1="210" y1="55" x2="270" y2="90" stroke="currentColor" stroke-opacity=".5" marker-end="url(#c1)"></line>
-      <line x1="210" y1="123" x2="270" y2="120" stroke="currentColor" stroke-opacity=".5" marker-end="url(#c1)"></line>
-
-      <rect x="270" y="200" width="190" height="60" rx="6" fill="var(--surface)" stroke="var(--border)"></rect>
-      <text x="284" y="222" class="mono" font-size="10" font-weight="700" fill="currentColor">bind mount</text>
-      <text x="284" y="238" class="mono" font-size="7.6" fill="currentColor" opacity=".55">./data/clickhouse_user_files</text>
-      <text x="284" y="250" class="mono" font-size="7.6" fill="currentColor" opacity=".55">→ /bronze_files</text>
-      <line x1="365" y1="154" x2="365" y2="200" stroke="currentColor" stroke-opacity=".5" marker-end="url(#c1)"></line>
-      <line x1="210" y1="55" x2="270" y2="220" stroke="currentColor" stroke-opacity=".35" stroke-dasharray="3 3"></line>
-
-      <text x="30" y="310" class="mono" font-size="8.2" fill="currentColor" opacity=".6">One docker-compose service (ClickHouse only).</text>
-      <text x="30" y="324" class="mono" font-size="8.2" fill="currentColor" opacity=".6">Daemon and Dagster run directly on the host.</text>
-
-      <!-- CLOUD -->
-      <rect x="540" y="20" width="170" height="46" rx="6" fill="var(--surface)" stroke="var(--info)" stroke-opacity=".5"></rect>
-      <text x="552" y="40" class="mono" font-size="9.5" font-weight="700" fill="currentColor">ACR</text>
-      <text x="552" y="54" class="mono" font-size="7.4" fill="currentColor" opacity=".55">3 images, no admin creds</text>
-
-      <rect x="540" y="90" width="170" height="46" rx="6" fill="var(--surface)" stroke="var(--info)" stroke-opacity=".5"></rect>
-      <text x="552" y="110" class="mono" font-size="9.5" font-weight="700" fill="currentColor">ClickHouse app</text>
-      <text x="552" y="124" class="mono" font-size="7.4" fill="currentColor" opacity=".55">data dir: ephemeral</text>
-
-      <rect x="540" y="150" width="170" height="46" rx="6" fill="var(--surface)" stroke="var(--info)" stroke-opacity=".5"></rect>
-      <text x="552" y="170" class="mono" font-size="9.5" font-weight="700" fill="currentColor">Ingest app</text>
-      <text x="552" y="184" class="mono" font-size="7.4" fill="currentColor" opacity=".55">the daemon, containerized</text>
-
-      <rect x="540" y="210" width="170" height="46" rx="6" fill="var(--surface)" stroke="var(--info)" stroke-opacity=".5"></rect>
-      <text x="552" y="230" class="mono" font-size="9.5" font-weight="700" fill="currentColor">Dagster app</text>
-      <text x="552" y="244" class="mono" font-size="7.4" fill="currentColor" opacity=".55">dagster dev, one process</text>
-
-      <rect x="540" y="270" width="170" height="46" rx="6" fill="var(--surface)" stroke="var(--info)" stroke-opacity=".5" stroke-dasharray="3 3"></rect>
-      <text x="552" y="290" class="mono" font-size="9.5" font-weight="700" fill="currentColor">Bootstrap job</text>
-      <text x="552" y="304" class="mono" font-size="7.4" fill="currentColor" opacity=".55">DDL, manual trigger only</text>
-
-      <line x1="710" y1="43" x2="600" y2="90" stroke="currentColor" stroke-opacity=".4" marker-end="url(#c1)"></line>
-      <line x1="710" y1="43" x2="600" y2="150" stroke="currentColor" stroke-opacity=".4" marker-end="url(#c1)"></line>
-      <line x1="710" y1="43" x2="600" y2="210" stroke="currentColor" stroke-opacity=".4" marker-end="url(#c1)"></line>
-      <line x1="710" y1="43" x2="600" y2="270" stroke="currentColor" stroke-opacity=".4" marker-end="url(#c1)"></line>
-
-      <rect x="800" y="150" width="200" height="80" rx="6" fill="var(--info-soft)" stroke="var(--info)" stroke-opacity=".5"></rect>
-      <text x="814" y="174" class="mono" font-size="10" font-weight="700" fill="currentColor">Azure Files share</text>
-      <text x="814" y="190" class="mono" font-size="7.6" fill="currentColor" opacity=".6">bronze_events, SMB</text>
-      <text x="814" y="204" class="mono" font-size="7.6" fill="currentColor" opacity=".6">mounted at /bronze_files in</text>
-      <text x="814" y="217" class="mono" font-size="7.6" fill="currentColor" opacity=".6">ClickHouse + Ingest + Bootstrap</text>
-
-      <line x1="710" y1="113" x2="800" y2="175" stroke="var(--info)" stroke-width="1.3" marker-end="url(#c1)"></line>
-      <line x1="710" y1="173" x2="800" y2="185" stroke="var(--info)" stroke-width="1.3" marker-end="url(#c1)"></line>
-      <line x1="710" y1="293" x2="800" y2="215" stroke="var(--info)" stroke-width="1.3" marker-end="url(#c1)"></line>
-
-      <text x="540" y="345" class="mono" font-size="8.2" fill="currentColor" opacity=".6">4 apps/jobs, managed identity for ACR pulls.</text>
-      <text x="540" y="359" class="mono" font-size="8.2" fill="currentColor" opacity=".6">Files share replaces the bind mount 1:1.</text>
-    </svg>
-    <figcaption>Only the Bronze exchange directory moves to durable storage in the cloud (a plain SMB file share — the same role the bind mount plays locally). ClickHouse's own MergeTree data directory is left on ephemeral container storage in both environments; Azure Files isn't a good fit for a storage engine, and tables reset on redeploy.</figcaption>
-  </figure>
-
-  <div class="prose" style="margin-top:22px">
-    <p>The container apps reference images that have to already exist in the ACR the same Terraform config creates, so <code>apply</code> runs in two passes: infra-only resources first (<code>-target=…</code>), then <code>make acr-push</code>, then the rest. <code>ACR</code> has <code>admin_enabled = false</code> — every app authenticates via a system-assigned managed identity and an <code>AcrPull</code> role assignment, not shared credentials. The Bronze DDL bootstrap is a manual-trigger container app job (<code>az containerapp job start</code>), not scheduled — idempotent, but nothing needs it to re-run on its own.</p>
-  </div>
+  <div class="notice">This roadmap reflects current intent, not a promise. Priorities can and will shift as the engine and its data mature — nothing here is a commitment on timing or delivery.</div>
 </section>
 
-<section class="block" id="notes">
+<section class="block" id="risks">
   <div class="block-head">
-    <div class="idx"><b>05</b> // FIELD NOTES</div>
+    <div class="idx"><b>06</b> // RISKS &amp; DISCLOSURE</div>
     <div>
-      <h2>What broke, and what it taught</h2>
-      <p class="lede">Six things that cost real debugging time, kept here so nobody re-discovers them.</p>
+      <h2>Read this before using either the signals or the token</h2>
+      <p class="lede">NOVA is experimental software and $NOVA is a volatile, newly launched asset. Treat both accordingly.</p>
     </div>
   </div>
-  <div class="notes">
-    <div class="note">
-      <div class="n-idx">RUNTIME</div>
-      <h4>A ClickHouse 429 isn't valid JSON</h4>
-      <p>Helius rate-limit responses aren't JSON, and <code>json.JSONDecodeError</code> isn't an <code>httpx.HTTPError</code> subclass — it was escaping uncaught from the fire-and-forget trade-fetch task, silently dropping that signature.</p>
-      <p class="fix"><b>Fix:</b> caught explicitly and treated as a retryable miss.</p>
-    </div>
-    <div class="note">
-      <div class="n-idx">INFRA</div>
-      <h4>The ClickHouse image chowns your bind mount</h4>
-      <p>The official image's entrypoint chowns <code>user_files_path</code> to its internal <code>clickhouse</code> user on every start when running as root — fighting a host daemon that needs the same directory writable.</p>
-      <p class="fix"><b>Fix:</b> run the container as the host UID so the root-only chown step never fires.</p>
-    </div>
-    <div class="note">
-      <div class="n-idx">SQL</div>
-      <h4>ClickHouse's analyzer drops implicit aliases</h4>
-      <p>An implicit <code>t.mint → mint</code> alias didn't propagate to an outer scope when the CTE producing it itself contained multiple joins, throwing <code>UNKNOWN_IDENTIFIER</code>.</p>
-      <p class="fix"><b>Fix:</b> make the alias explicit — <code>t.mint as mint</code> — in any CTE-with-joins.</p>
-    </div>
-    <div class="note">
-      <div class="n-idx">OPS</div>
-      <h4>SIGTERM doesn't always land</h4>
-      <p>A plain <code>kill</code> on a <code>nohup</code>'d daemon left it running even after a wait and a repeat SIGTERM.</p>
-      <p class="fix"><b>Fix:</b> escalate to SIGKILL and verify with <code>ps -p &lt;pid&gt;</code> — never assume a kill worked.</p>
-    </div>
-    <div class="note">
-      <div class="n-idx">DATA SOURCE</div>
-      <h4>The free public Solana RPC's log filter is a no-op</h4>
-      <p>Subscribing to <code>logsSubscribe</code> with <code>mentions</code> set to the pump.fun program on <code>api.mainnet-beta.solana.com</code> returned ~35,000 messages in 45 seconds — zero of which referenced that program.</p>
-      <p class="fix"><b>Fix:</b> moved trade streaming to Helius, whose free tier honors the filter.</p>
-    </div>
-    <div class="note">
-      <div class="n-idx">DATA SOURCE</div>
-      <h4>PumpPortal trades aren't actually free</h4>
-      <p><code>subscribeTokenTrade</code> / <code>subscribeAccountTrade</code> need an API key and a wallet funded with SOL, metered per event — only the launch feed is free.</p>
-      <p class="fix"><b>Fix:</b> kept PumpPortal for launches only; trades go through Helius instead.</p>
-    </div>
-  </div>
-</section>
-
-<section class="block" id="stack">
-  <div class="block-head">
-    <div class="idx"><b>06</b> // STACK</div>
-    <div>
-      <h2>Everything it's built with</h2>
-    </div>
-  </div>
-
-  <div class="stack-group">
-    <h4>LANGUAGE &amp; TOOLING</h4>
-    <div class="badges">
-      <span class="badge">Python 3.13</span><span class="badge">uv workspace</span><span class="badge">ruff</span>
-      <span class="badge">pytest</span><span class="badge">pytest-asyncio</span><span class="badge">respx</span>
-      <span class="badge">hatchling</span>
-    </div>
-  </div>
-  <div class="stack-group">
-    <h4>APPLICATION</h4>
-    <div class="badges">
-      <span class="badge">pydantic v2</span><span class="badge">pydantic-settings</span><span class="badge">structlog</span>
-      <span class="badge">httpx</span><span class="badge">tenacity</span><span class="badge">aiolimiter</span>
-      <span class="badge">websockets</span><span class="badge">aiogram</span>
-    </div>
-  </div>
-  <div class="stack-group">
-    <h4>DATA &amp; ORCHESTRATION</h4>
-    <div class="badges">
-      <span class="badge">ClickHouse</span><span class="badge">clickhouse-connect</span><span class="badge">dbt-clickhouse</span>
-      <span class="badge">Dagster</span><span class="badge">dagster-dbt</span>
-    </div>
-  </div>
-  <div class="stack-group">
-    <h4>INFRASTRUCTURE</h4>
-    <div class="badges">
-      <span class="badge">Docker</span><span class="badge">Terraform</span><span class="badge">azurerm ~&gt;4.0</span>
-      <span class="badge">Azure Container Apps</span><span class="badge">Azure Container Registry</span>
-      <span class="badge">Azure Files</span><span class="badge">Azure Key Vault</span>
-    </div>
-  </div>
-  <div class="stack-group">
-    <h4>UPSTREAM DATA</h4>
-    <div class="badges">
-      <span class="badge">PumpPortal</span><span class="badge">Helius RPC</span><span class="badge">Solana</span>
-      <span class="badge">Telegram Bot API</span>
-    </div>
+  <div class="prose">
+    <p>The risk score the engine produces is rules-based and still being tuned; it can miss real risk and can flag tokens that turn out fine. It is informational only, not financial advice, and not a guarantee of any outcome. Nothing on this site or in this document is an offer or solicitation to buy or sell any security or investment product.</p>
+    <p>$NOVA, like any newly launched pump.fun token, can be extremely volatile and may become illiquid or lose most or all of its value. It carries no promised utility, revenue share or governance rights today — see the roadmap above for direction, not commitment. Do your own research, and only risk funds you can afford to lose.</p>
   </div>
 </section>
 
@@ -563,7 +350,7 @@ footer{padding:44px 0 60px;border-top:1px solid var(--border)}
       <div class="brand"><span class="dot" style="display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--signal);margin-right:8px"></span>NOVA — experimental token-market intelligence</div>
       <div class="foot-links">
         <a href="index.html">Overview</a>
-        <a href="whitepaper.html">Whitepaper</a>
+        <a href="architecture.html">Internals</a>
         <a href="https://t.me/NovaRadarSignalsBot">Bot</a>
         <a href="https://t.me/NOVAexperiment">Channel</a>
         <a href="https://pump.fun/coin/EFfuye9Qa2eCtFkmMq9W2vjMFeQsVyX1foMKZ1PSpump">$NOVA</a>
