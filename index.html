@@ -98,7 +98,7 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--signal);outline-off
 .topbar .wrap{display:flex;align-items:center;justify-content:space-between;padding-top:16px;padding-bottom:16px}
 .brand{display:flex;align-items:center;gap:10px;font-family:JBM;font-weight:700;letter-spacing:.02em}
 .brand .dot{width:9px;height:9px;border-radius:50%;background:var(--signal);box-shadow:0 0 0 3px var(--signal-soft)}
-.topnav{display:flex;gap:22px;font-family:JBM;font-size:.78rem;letter-spacing:.06em}
+.topnav{display:flex;gap:20px;flex-wrap:wrap;justify-content:flex-end;font-family:JBM;font-size:.78rem;letter-spacing:.06em}
 .topnav a{text-decoration:none;color:var(--muted);border-bottom:1px solid transparent;padding-bottom:2px}
 .topnav a:hover{color:var(--text);border-color:var(--signal)}
 @media(max-width:640px){.topnav{display:none}}
@@ -227,9 +227,12 @@ footer{padding:44px 0 60px;border-top:1px solid var(--border)}
   <div class="wrap">
     <div class="brand"><span class="dot"></span> NOVA</div>
     <nav class="topnav">
+      <a href="#token">Token</a>
+      <a href="#concept">Concept</a>
+      <a href="#roadmap">Roadmap</a>
+      <a href="#whitepaper">Whitepaper</a>
       <a href="#overview">Overview</a>
       <a href="#bot">Bot</a>
-      <a href="#token">Token</a>
       <a href="#channel">Channel</a>
       <a href="#architecture">Architecture</a>
       <a href="architecture.html">Internals ↗</a>
@@ -265,9 +268,89 @@ footer{padding:44px 0 60px;border-top:1px solid var(--border)}
   </div>
 </section>
 
+<section class="block" id="token">
+  <div class="block-head">
+    <div class="idx"><b>01</b> // TOKEN</div>
+    <div>
+      <h2>The $NOVA token</h2>
+      <p class="lede">$NOVA is the project's own listing — a fair-launch token on pump.fun, running under the exact bonding-curve mechanism NOVA was built to watch.</p>
+    </div>
+  </div>
+  <div class="prose">
+    <p><strong>Ticker</strong> $NOVA · <strong>Network</strong> Solana · <strong>Launch venue</strong> pump.fun, public bonding curve.</p>
+    <p>There was no presale, no private allocation and no team pre-mint set aside before launch. $NOVA entered circulation the same way every token NOVA screens does — anyone buying in on the open curve, in the same window as everyone else.</p>
+  </div>
+  <div class="cta-row" style="margin-top:22px">
+    <a class="btn btn-ghost" href="https://pump.fun/coin/EFfuye9Qa2eCtFkmMq9W2vjMFeQsVyX1foMKZ1PSpump">View $NOVA on pump.fun ↗</a>
+    <a class="btn btn-ghost" href="#token-contract">Full contract &amp; listing details ↓</a>
+  </div>
+</section>
+
+<section class="block" id="concept">
+  <div class="block-head">
+    <div class="idx"><b>02</b> // CONCEPT</div>
+    <div>
+      <h2>Why $NOVA exists</h2>
+      <p class="lede">Not a utility token bolted onto the product — $NOVA is the project putting itself through the same scanner it built for everyone else.</p>
+    </div>
+  </div>
+  <div class="prose">
+    <p>Using the bot or the channel has never required holding $NOVA — there's no gating, no fee-share, no built-in alert priority tied to it today. Its purpose is different: it's a transparency exercise, a way for NOVA to have real skin in the exact game it screens, launched on the same public curve, at the same fair-launch starting line, as every mint it flags.</p>
+    <p>It's also become a rallying point for the people already using the signals — a way to hold a stake in the project itself, not just consume what it publishes.</p>
+  </div>
+  <div class="notice"><b>No promised utility.</b> $NOVA carries no guaranteed protocol utility or revenue share as of today. Anything beyond "same token, same project" described here is direction, not a commitment — see the roadmap below and the disclaimers throughout this site.</div>
+</section>
+
+<section class="block" id="roadmap">
+  <div class="block-head">
+    <div class="idx"><b>03</b> // COMMUNITY ROADMAP</div>
+    <div>
+      <h2>Where NOVA goes from here</h2>
+      <p class="lede">Sequenced around the community that actually uses the bot and channel today, not a fixed date-driven plan.</p>
+    </div>
+  </div>
+
+  <div class="cards3" style="grid-template-columns:repeat(2,1fr)">
+    <div class="card">
+      <h3><span class="pill" style="background:var(--signal-soft);color:var(--signal);border-color:color-mix(in srgb, var(--signal) 35%, var(--border))">Phase 1 · Live</span></h3>
+      <p><strong style="color:var(--text)">Engine, bot, channel, $NOVA.</strong> The real-time risk engine, @NovaRadarSignalsBot, @NOVAexperiment and $NOVA's own fair launch — the foundation already running today.</p>
+    </div>
+    <div class="card">
+      <h3><span class="pill" style="background:var(--info-soft);color:var(--info);border-color:color-mix(in srgb, var(--info) 35%, var(--border))">Phase 2 · In progress</span></h3>
+      <p><strong style="color:var(--text)">Growing the community, tightening the score.</strong> Expanding the free channel and bot subscriber base, and tuning the risk-scoring rules against more live data — see the accuracy numbers in <a href="#architecture">Architecture</a>.</p>
+    </div>
+    <div class="card">
+      <h3><span class="pill" style="background:var(--token-soft);color:var(--token);border-color:color-mix(in srgb, var(--token) 35%, var(--border))">Phase 3 · Planned</span></h3>
+      <p><strong style="color:var(--text)">A public dashboard.</strong> Browsing signal history and flagged insider wallets without needing Telegram, plus coverage beyond pump.fun's own curve.</p>
+    </div>
+    <div class="card">
+      <h3><span class="pill" style="background:var(--surface-2);color:var(--muted);border-color:var(--border)">Phase 4 · Exploring</span></h3>
+      <p><strong style="color:var(--text)">A real community voice.</strong> Ways for the people holding $NOVA and using the signals to weigh in on how the risk score is tuned.</p>
+    </div>
+  </div>
+
+  <div class="notice">This roadmap reflects current intent, not a promise. Priorities can and will shift as the engine and its data mature — nothing here is a commitment on timing or delivery.</div>
+</section>
+
+<section class="block" id="whitepaper">
+  <div class="block-head">
+    <div class="idx"><b>04</b> // WHITE PAPER</div>
+    <div>
+      <h2>White paper</h2>
+      <p class="lede">The full write-up — problem, mechanism, token, and risks — in one document.</p>
+    </div>
+  </div>
+  <div class="prose">
+    <p>NOVA started from one question: what does a pump.fun token look like in the first minute of its life? The white paper lays out the problem in full, how the engine answers it, what $NOVA is and isn't, and the risks involved in both the product and the token — in more depth than fits on this page.</p>
+  </div>
+  <div class="cta-row" style="margin-top:22px">
+    <a class="btn btn-primary" href="whitepaper.html">Read the white paper ↗</a>
+  </div>
+</section>
+
 <section class="block" id="overview">
   <div class="block-head">
-    <div class="idx"><b>01</b> // OVERVIEW</div>
+    <div class="idx"><b>05</b> // OVERVIEW</div>
     <div>
       <h2>One engine, three surfaces</h2>
       <p class="lede">NOVA is an experimental research and alerting system built around one question: what does a pump.fun token look like in the first minute of its life?</p>
@@ -338,7 +421,7 @@ footer{padding:44px 0 60px;border-top:1px solid var(--border)}
 
 <section class="block" id="bot">
   <div class="block-head">
-    <div class="idx"><b>02</b> // THE BOT</div>
+    <div class="idx"><b>06</b> // THE BOT</div>
     <div>
       <h2>@NovaRadarSignalsBot</h2>
       <p class="pill">Real-time intelligence for newly launched tokens.</p>
@@ -388,9 +471,9 @@ footer{padding:44px 0 60px;border-top:1px solid var(--border)}
   </table>
 </section>
 
-<section class="block" id="token">
+<section class="block" id="token-contract">
   <div class="block-head">
-    <div class="idx"><b>03</b> // THE TOKEN</div>
+    <div class="idx"><b>07</b> // TOKEN DETAILS</div>
     <div>
       <h2>$NOVA — the project's own listing</h2>
       <p class="lede">NOVA didn't just build a tool to watch pump.fun launches — it put one of its own on the curve.</p>
@@ -413,7 +496,7 @@ footer{padding:44px 0 60px;border-top:1px solid var(--border)}
 
 <section class="block" id="channel">
   <div class="block-head">
-    <div class="idx"><b>04</b> // THE CHANNEL</div>
+    <div class="idx"><b>08</b> // THE CHANNEL</div>
     <div>
       <h2>@NOVAexperiment</h2>
       <p class="lede">The open broadcast surface — every signal, no account required.</p>
@@ -429,7 +512,7 @@ footer{padding:44px 0 60px;border-top:1px solid var(--border)}
 
 <section class="block" id="architecture">
   <div class="block-head">
-    <div class="idx"><b>05</b> // ARCHITECTURE</div>
+    <div class="idx"><b>09</b> // ARCHITECTURE</div>
     <div>
       <h2>Two paths, one feed</h2>
       <p class="lede">Every signal starts at the same source. From there it splits into a fast path built for alerting, and a slower, deeper path built for analysis.</p>
@@ -529,6 +612,7 @@ footer{padding:44px 0 60px;border-top:1px solid var(--border)}
     <div class="foot-row">
       <div class="brand"><span class="dot" style="display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--signal);margin-right:8px"></span>NOVA — experimental token-market intelligence</div>
       <div class="foot-links">
+        <a href="whitepaper.html">Whitepaper</a>
         <a href="architecture.html">Internals</a>
         <a href="https://t.me/NovaRadarSignalsBot">Bot</a>
         <a href="https://t.me/NOVAexperiment">Channel</a>
